@@ -22,8 +22,8 @@ def bad_request(url):
     bad_request = {}
     bad_request["status"] = response.status_code
     bad_request["text"] = response.text
-    print("bad request status : "+str(response.status_code))
-    print("bad request text : "+response.text)
+    print("Failed HTTP status : "+str(response.status_code))
+    print("Failed HTTP body : "+response.text)
     return bad_request
 
 def send(url,username,password,bad_request_data):
@@ -61,19 +61,12 @@ def main(argv=None):
         add_help=False,  # we'll provide a custom --help so we can use -h for host
     )
 
-    # Custom help flag (long form). Leave out -h from argparse default so we can use it for host.
-    parser.add_argument("--help", action="help", help="show this help message and exit")
-
-    # Add -h as host (since user requested that short form)
     parser.add_argument("-h", "--host", dest="host", required=True,
                         help="Target host URL (e.g. http://example.com)")
-
     parser.add_argument("-u", "--user-file", dest="user_file", required=True,
                         help="Path to username file (one username per line)")
-
     parser.add_argument("-p", "--pass-file", dest="pass_file", required=True,
                         help="Path to password file (one password per line)")
-
     args = parser.parse_args(argv)
 
     host = args.host
@@ -91,18 +84,22 @@ def main(argv=None):
     pass_path = Path(args.pass_file)
 
     file_username = load_lines(user_path)
+    numberusers = len(file_username)
     file_password = load_lines(pass_path)
-    file_username.append("test@test.com")
-    file_password.append("tessttest")
+    numberpassword = len(file_password)
+    totalnumber = numberusers*numberpassword
+    progressvalue = int(totalnumber/100)
 
+    counter = 0
     for user in file_username:
         for password in file_password:
-            print(f"\rTrying username: {user} | password: {password}", end="")
+            counter += 1
+            if(counter % progressvalue)==0:
+                print(f"\rProgress {counter}/{totalnumber}", end="")
             send(host,user,password,bad_request_data)
-            print(f"\r", end="")
+    print()
     global found 
     if not found:
-        print(f"\r----------------------------------------------------------")
         print(f"\rFAILED")
 
     return 0
