@@ -8,7 +8,7 @@ An HTTP Login Bruteforcer written in Python
 
 ## 📂 Files
 
-- `bruteforce.py`: The main script file.
+- `minotaur.py`: The main script file.
 - `username.txt`: A text file containing a list of usernames.
 - `password.txt`: A text file containing a list of passwords.
 
