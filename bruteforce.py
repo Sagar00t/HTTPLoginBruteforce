@@ -24,16 +24,16 @@ def httppost_bad_request(url,data):
     bad_request = {}
     bad_request["status"] = response.status_code
     bad_request["text"] = response.text
-    print("Failed HTTP status : "+str(response.status_code))
-    print("Failed HTTP body : "+response.text)
-    print("Failed HTTP request : ")
-    print("---")
+    print("  Failed HTTP status : "+str(response.status_code))
+    print("  Failed HTTP body : "+response.text)
+    print("  Failed HTTP request : ")
+    print("  ▀▀▀")
     req = response.request
-    print(f"{req.method} {req.url}")
+    print(f"  {req.method} {req.url}")
     for i in dict(req.headers):
-        print(i+"="+req.headers[i])
-    print(urlencode(data))
-    print("---")
+        print("  "+i+"="+req.headers[i])
+    print("  "+urlencode(data))
+    print("  ▀▀▀")
     return bad_request
 
 def httppost(url,username,password,bad_request_data,data):
@@ -61,8 +61,29 @@ def is_valid_url(url: str) -> bool:
 def load_lines(path):
     with open(path, "r", encoding="utf-8") as f:
         return [line.strip() for line in f if line.strip() and not line.strip().startswith("#")]
+    
+def printbanner():
+    art = """
+▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌
+▐███╗   ███╗██╗███╗   ██╗ ██████╗  ▌
+▐████╗ ████║██║████╗  ██║██╔═══██╗ ▌
+▐██╔████╔██║██║██╔██╗ ██║██║   ██║ ▌
+▐██║╚██╔╝██║██║██║╚██╗██║██║   ██║ ▌
+▐██║ ╚═╝ ██║██║██║ ╚████║╚██████╔╝ ▌
+▐╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝  ▌
+▐                                  ▌
+▐████████╗ █████╗ ██╗   ██╗██████╗ ▌
+▐╚══██╔══╝██╔══██╗██║   ██║██╔══██╗▌
+▐   ██║   ███████║██║   ██║██████╔╝▌
+▐   ██║   ██╔══██║██║   ██║██╔══██╗▌
+▐   ██║   ██║  ██║╚██████╔╝██║  ██║▌
+▐   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝▌
+▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌
+"""
+    print(art)
 
 def main(argv=None):
+    printbanner()
     global found 
     global mode_list
 
@@ -101,11 +122,12 @@ def main(argv=None):
     
     mode_index = mode_list.index("http-post")
 
-    print("------------")
-    print("URL : "+host)
+    print("▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀")
+    print("  URL : "+host)
     bad_request_data = funcs_bad_request[mode_index](host,data)
-    print("------------")
-
+    print("▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄")
+    print("")
+    print("▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀")
     user_path = Path(args.user_file)
     pass_path = Path(args.pass_file)
 
@@ -121,15 +143,21 @@ def main(argv=None):
         for password in file_password:
             counter += 1
             if(counter % progressvalue)==0:
-                print(f"\rProgress {counter}/{totalnumber}", end="")
+                print(f"\r  Progress {counter}/{totalnumber}", end="")
             funcs[mode_index](host,user,password,bad_request_data,data)
     print()
     global found 
     if not found:
-        print(f"\rFAILED")
+        print(f"\r  FAILED")
 
     return 0
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        main()
+        print("▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄")
+    except KeyboardInterrupt:
+        print("")
+        print("  Program closed")
+        print("▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄")
 
