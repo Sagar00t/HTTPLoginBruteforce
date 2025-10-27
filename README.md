@@ -14,17 +14,14 @@ An HTTP Login Bruteforcer written in Python
 
 ## 🚀 Usage
 
-To run the script, use the following command:
+Bruteforce via HTTP POST method:
 
 ```bash
 python3 minotaur.py -h http://api.example.org/v1/login -u username.txt -p password.txt -m http-post -d "username=^USER^&password=^PASS^"
 ```
 
-## 🔐 Authentication Format
-
-mode: http-post
-data: username=^USER^&password=^PASS^
+Bruteforce via Authorization Basic method:
 
 ```bash
-username=input1&password=input2
+python3 minotaur.py -h http://api.example.org/v1/login -u username.txt -p password.txt -m basic -d "anypayload"
 ```
