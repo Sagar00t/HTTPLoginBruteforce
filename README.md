@@ -1,6 +1,6 @@
-# HTTPLoginBruteforce
+# Minotaur
 
-HTTP Login Bruteforce written in Python
+An HTTP Login Bruteforcer written in Python
 
 ## ⚙️ Requirements
 
@@ -17,7 +17,7 @@ HTTP Login Bruteforce written in Python
 To run the script, use the following command:
 
 ```bash
-python3 bruteforce.py -h http://api.example.org/v1/login -u username.txt -p password.txt -m http-post -d "username=^USER^&password=^PASS^"
+python3 minotaur.py -h http://api.example.org/v1/login -u username.txt -p password.txt -m http-post -d "username=^USER^&password=^PASS^"
 ```
 
 ## 🔐 Authentication Format
