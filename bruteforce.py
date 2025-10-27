@@ -8,10 +8,10 @@ import sys
 # global variables #
 ####################
 found = False
-mode_list = ["http-post-json"]
+mode_list = ["http-post"]
 
 #get bad login response to make the filtering a good response
-def httppostjson_bad_request(url,data):
+def httppost_bad_request(url,data):
 
     filled = data.replace("^USER^", "input1").replace("^PASS^", "input2")
     data = dict(parse_qsl(filled))
@@ -36,7 +36,7 @@ def httppostjson_bad_request(url,data):
     print("---")
     return bad_request
 
-def httppostjson(url,username,password,bad_request_data,data):
+def httppost(url,username,password,bad_request_data,data):
     global found 
 
     filled = data.replace("^USER^", username).replace("^PASS^", password)
@@ -90,8 +90,8 @@ def main(argv=None):
     mode = args.mode
     data = args.data
 
-    funcs = [httppostjson]
-    funcs_bad_request = [httppostjson_bad_request]
+    funcs = [httppost]
+    funcs_bad_request = [httppost_bad_request]
 
     # Validate URL
     if not is_valid_url(args.host):
@@ -99,7 +99,7 @@ def main(argv=None):
     if mode not in mode_list:
         parser.error(f"The mode must be in the following list : "+str(mode))
     
-    mode_index = mode_list.index("http-post-json")
+    mode_index = mode_list.index("http-post")
 
     print("------------")
     print("URL : "+host)
