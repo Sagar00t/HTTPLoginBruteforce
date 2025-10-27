@@ -3,14 +3,15 @@ import argparse
 from pathlib import Path
 from urllib.parse import urlparse, parse_qsl, urlencode
 import sys
+import base64
+import time
 
 ####################
 # global variables #
 ####################
 found = False
-mode_list = ["http-post"]
+mode_list = ["http-post", "basic"]
 
-#get bad login response to make the filtering a good response
 def httppost_bad_request(url,data):
 
     filled = data.replace("^USER^", "input1").replace("^PASS^", "input2")
@@ -31,7 +32,8 @@ def httppost_bad_request(url,data):
     req = response.request
     print(f"  {req.method} {req.url}")
     for i in dict(req.headers):
-        print("  "+i+"="+req.headers[i])
+        print("  "+i+"= "+req.headers[i])
+    print("")
     print("  "+urlencode(data))
     print("  ▀▀▀")
     return bad_request
@@ -44,6 +46,51 @@ def httppost(url,username,password,bad_request_data,data):
     
     headers = {
         "Content-Type": "application/json"
+    }
+    response = requests.post(url, json=data, headers=headers)
+    if(response.status_code != bad_request_data["status"]):
+        print(f"\rSUCCESS username: {username} | password: {password}")
+        print("Response Body:", response.text)
+        found = True
+
+def basic_bad_request(url,data):
+
+    payload = "input1:input2"
+    payload = base64.b64encode(payload.encode()).decode()
+
+    data = dict(parse_qsl(data))
+    
+    headers = {
+        "Authorization" : "Basic "+payload
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    bad_request = {}
+    bad_request["status"] = response.status_code
+    bad_request["text"] = response.text
+    print("  Failed HTTP status : "+str(response.status_code))
+    print("  Failed HTTP body : "+response.text)
+    print("  Failed HTTP request : ")
+    print("  ▀▀▀")
+    req = response.request
+    print(f"  {req.method} {req.url}")
+    for i in dict(req.headers):
+        print("  "+i+"= "+req.headers[i])
+    print("")
+    print("  "+urlencode(data))
+    print("  ▀▀▀")
+    return bad_request
+
+def basic(url,username,password,bad_request_data,data):
+    global found 
+
+    payload = username+":"+password
+    payload = base64.b64encode(payload.encode()).decode()
+
+    data = dict(parse_qsl(data))
+    
+    headers = {
+        "Authorization" : "Basic "+payload
     }
     response = requests.post(url, json=data, headers=headers)
     if(response.status_code != bad_request_data["status"]):
@@ -111,8 +158,8 @@ def main(argv=None):
     mode = args.mode
     data = args.data
 
-    funcs = [httppost]
-    funcs_bad_request = [httppost_bad_request]
+    funcs = [httppost, basic]
+    funcs_bad_request = [httppost_bad_request, basic_bad_request]
 
     # Validate URL
     if not is_valid_url(args.host):
@@ -120,7 +167,7 @@ def main(argv=None):
     if mode not in mode_list:
         parser.error(f"The mode must be in the following list : "+str(mode))
     
-    mode_index = mode_list.index("http-post")
+    mode_index = mode_list.index(mode)
 
     print("▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀")
     print("  URL : "+host)
