@@ -14,6 +14,12 @@ An HTTP Login Bruteforcer written in Python
 
 ## 🚀 Usage
 
+Bruteforce via HTTP GET method:
+
+```bash
+python3 minotaur.py -h http://api.example.org/v1/login -u username.txt -p password.txt -m http-get -d "username=^USER^&password=^PASS^"
+```
+
 Bruteforce via HTTP POST method:
 
 ```bash
