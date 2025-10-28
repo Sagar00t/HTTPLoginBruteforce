@@ -5,12 +5,35 @@ from urllib.parse import urlparse, parse_qsl, urlencode
 import sys
 import base64
 import time
+import json
 
 ####################
 # global variables #
 ####################
 found = False
-mode_list = ["http-post", "basic"]
+mode_list = ["http-get", "http-post", "basic"]
+
+def httpget_bad_request(url,data):
+
+    data = data.replace("^USER^", "input1").replace("^PASS^", "input2")
+    
+    response = requests.get(url+"?"+data)
+    bad_request = {}
+    bad_request["status"] = response.status_code
+    bad_request["text"] = response.text
+    print_bad_request(response)
+    return bad_request
+
+def httpget(url,username,password,bad_request_data,data):
+    global found 
+
+    data = data.replace("^USER^", username).replace("^PASS^", password)
+
+    response = requests.get(url+"?"+str(data))
+    if(response.status_code != bad_request_data["status"]):
+        print(f"\rSUCCESS username: {username} | password: {password}")
+        print("Response Body:", response.text)
+        found = True
 
 def httppost_bad_request(url,data):
 
@@ -25,17 +48,7 @@ def httppost_bad_request(url,data):
     bad_request = {}
     bad_request["status"] = response.status_code
     bad_request["text"] = response.text
-    print("  Failed HTTP status : "+str(response.status_code))
-    print("  Failed HTTP body : "+response.text)
-    print("  Failed HTTP request : ")
-    print("  ▀▀▀")
-    req = response.request
-    print(f"  {req.method} {req.url}")
-    for i in dict(req.headers):
-        print("  "+i+"= "+req.headers[i])
-    print("")
-    print("  "+urlencode(data))
-    print("  ▀▀▀")
+    print_bad_request(response)
     return bad_request
 
 def httppost(url,username,password,bad_request_data,data):
@@ -68,17 +81,7 @@ def basic_bad_request(url,data):
     bad_request = {}
     bad_request["status"] = response.status_code
     bad_request["text"] = response.text
-    print("  Failed HTTP status : "+str(response.status_code))
-    print("  Failed HTTP body : "+response.text)
-    print("  Failed HTTP request : ")
-    print("  ▀▀▀")
-    req = response.request
-    print(f"  {req.method} {req.url}")
-    for i in dict(req.headers):
-        print("  "+i+"= "+req.headers[i])
-    print("")
-    print("  "+urlencode(data))
-    print("  ▀▀▀")
+    print_bad_request(response)
     return bad_request
 
 def basic(url,username,password,bad_request_data,data):
@@ -97,6 +100,25 @@ def basic(url,username,password,bad_request_data,data):
         print(f"\rSUCCESS username: {username} | password: {password}")
         print("Response Body:", response.text)
         found = True
+
+def print_bad_request(response):
+    req = response.request
+    try:
+        req_body = req.body
+        json_str = req_body.decode('utf-8')
+        req_body = json.loads(json_str)
+    except:
+        req_body={}
+    print("  Failed HTTP status : "+str(response.status_code))
+    print("  Failed HTTP body : "+response.text)
+    print("  Failed HTTP request : ")
+    print("  ▀▀▀")
+    print(f"  {req.method} {req.url}")
+    for i in dict(req.headers):
+        print("  "+i+"= "+req.headers[i])
+    print("")
+    print("  "+urlencode(req_body))
+    print("  ▀▀▀")
 
 def is_valid_url(url: str) -> bool:
     try:
@@ -158,8 +180,8 @@ def main(argv=None):
     mode = args.mode
     data = args.data
 
-    funcs = [httppost, basic]
-    funcs_bad_request = [httppost_bad_request, basic_bad_request]
+    funcs = [httpget, httppost, basic]
+    funcs_bad_request = [httpget_bad_request ,httppost_bad_request, basic_bad_request]
 
     # Validate URL
     if not is_valid_url(args.host):
