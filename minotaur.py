@@ -30,7 +30,7 @@ def httpget_bad_request(url,data,failed_string):
     bad_request = {}
     bad_request["status"] = response.status_code
     bad_request["text"] = response.text
-    print_bad_request(response)
+    print_bad_request(response,url, "GET", None, data)
     if failed_string==None:
         return bad_request
     elif failed_string in response.text:
@@ -40,21 +40,21 @@ def httpget_bad_request(url,data,failed_string):
         print("Failed string : "+str(failed_string))
         exit()
 
-def httpget(url,username,password,bad_request_data,data,bad_string):
+def httpget(url,username,password,bad_request_data,data,bad_string,user_enum):
     global found 
 
     data = data.replace("^USER^", username).replace("^PASS^", password)
 
     response = requests.get(url+"?"+str(data))
-    if(response.status_code != bad_request_data["status"]):
-        if bad_string==None:
-            print(f"\rSUCCESS username: {username} | password: {password}")
-            print("Response Body:", response.text)
-            found = True
-        elif bad_string not in response.text:
-            print(f"\rSUCCESS username: {username} | password: {password}")
-            print("Response Body:", response.text)
-            found = True
+    if user_enum:
+        if bad_request_data["text"] != response.text:
+            print("User found : "+username)
+    else:
+        if(response.status_code != bad_request_data["status"]):
+            if bad_string==None or bad_string not in response.text:
+                print(f"\rSUCCESS username: {username} | password: {password}")
+                print("Response Body:", response.text)
+                found = True
 
 #############
 # HTTP POST #
@@ -74,7 +74,7 @@ def httppost_bad_request(url,data,failed_string):
     bad_request = {}
     bad_request["status"] = response.status_code
     bad_request["text"] = response.text
-    print_bad_request(response)
+    print_bad_request(response,url, "POST", headers, data)
     if failed_string==None:
         return bad_request
     elif failed_string in response.text:
@@ -84,7 +84,7 @@ def httppost_bad_request(url,data,failed_string):
         print("Failed string : "+str(failed_string))
         exit()
 
-def httppost(url,username,password,bad_request_data,data,bad_string):
+def httppost(url,username,password,bad_request_data,data,bad_string,user_enum):
     global found 
 
     filled = data.replace("^USER^", username).replace("^PASS^", password)
@@ -97,15 +97,15 @@ def httppost(url,username,password,bad_request_data,data,bad_string):
         headers = {}
 
     response = requests.post(url, data=filled, headers=headers)
-    if(response.status_code != bad_request_data["status"]):
-        if bad_string==None:
-            print(f"\rSUCCESS username: {username} | password: {password}")
-            print("Response Body:", response.text)
-            found = True
-        elif bad_string not in response.text:
-            print(f"\rSUCCESS username: {username} | password: {password}")
-            print("Response Body:", response.text)
-            found = True
+    if user_enum:
+        if bad_request_data["text"] != response.text:
+            print("User found : "+username)
+    else:
+        if(response.status_code != bad_request_data["status"]):
+            if bad_string==None or bad_string not in response.text:
+                print(f"\rSUCCESS username: {username} | password: {password}")
+                print("Response Body:", response.text)
+                found = True
 
 #########
 # Basic #
@@ -125,7 +125,7 @@ def basic_bad_request(url,data,failed_string):
     bad_request = {}
     bad_request["status"] = response.status_code
     bad_request["text"] = response.text
-    print_bad_request(response)
+    print_bad_request(response,url, "POST", headers, data)
     if failed_string==None:
         return bad_request
     elif failed_string in response.text:
@@ -135,7 +135,7 @@ def basic_bad_request(url,data,failed_string):
         print("Failed string : "+str(failed_string))
         exit()
 
-def basic(url,username,password,bad_request_data,data,bad_string):
+def basic(url,username,password,bad_request_data,data,bad_string,user_enum):
     global found 
 
     payload = username+":"+password
@@ -147,15 +147,15 @@ def basic(url,username,password,bad_request_data,data,bad_string):
         "Authorization" : "Basic "+payload
     }
     response = requests.post(url, json=data, headers=headers)
-    if(response.status_code != bad_request_data["status"]):
-        if bad_string==None:
-            print(f"\rSUCCESS username: {username} | password: {password}")
-            print("Response Body:", response.text)
-            found = True
-        elif bad_string not in response.text:
-            print(f"\rSUCCESS username: {username} | password: {password}")
-            print("Response Body:", response.text)
-            found = True
+    if user_enum:
+        if bad_request_data["text"] != response.text:
+            print("User found : "+username)
+    else:
+        if(response.status_code != bad_request_data["status"]):
+            if bad_string==None or bad_string not in response.text:
+                print(f"\rSUCCESS username: {username} | password: {password}")
+                print("Response Body:", response.text)
+                found = True
 
 ################
 # Request file #
@@ -176,7 +176,7 @@ def requestfile_bad_request(url,data,failed_string):
     bad_request = {}
     bad_request["status"] = response.status_code
     bad_request["text"] = response.text
-    print_bad_request(response)
+    print_bad_request(response,url, method, headers, data)
     if failed_string==None:
         return bad_request
     elif failed_string in response.text:
@@ -186,7 +186,7 @@ def requestfile_bad_request(url,data,failed_string):
         print("Failed string : "+str(failed_string))
         exit()
 
-def requestfile(url,username,password,bad_request_data,data,bad_string):
+def requestfile(url,username,password,bad_request_data,data,bad_string,user_enum):
     global found
 
     method = data[0]
@@ -200,15 +200,15 @@ def requestfile(url,username,password,bad_request_data,data,bad_string):
 
     response = send_request(url, method, headers, data)
 
-    if(response.status_code != bad_request_data["status"]):
-        if bad_string==None:
-            print(f"\rSUCCESS username: {username} | password: {password}")
-            print("Response Body:", response.text)
-            found = True
-        elif bad_string not in response.text:
-            print(f"\rSUCCESS username: {username} | password: {password}")
-            print("Response Body:", response.text)
-            found = True
+    if user_enum:
+        if bad_request_data["text"] != response.text:
+            print("User found : "+username)
+    else:
+        if(response.status_code != bad_request_data["status"]):
+            if bad_string==None or bad_string not in response.text:
+                print(f"\rSUCCESS username: {username} | password: {password}")
+                print("Response Body:", response.text)
+                found = True
 
 def send_request(url, method, headers, data):
     if method.upper() == "POST":
@@ -249,26 +249,18 @@ def is_valid_json(s):
     except json.JSONDecodeError:
         return False
 
-def print_bad_request(response):
-    req = response.request
-    try:
-        req_body = req.body
-        json_str = req_body.decode('utf-8')
-        req_body = json.loads(json_str)
-    except:
-        req_body = req.body
+def print_bad_request(response,url, method, headers, data):
     print("  Failed HTTP response status : "+str(response.status_code))
-    #print("  Failed HTTP response body : "+response.text)
     print("  Failed HTTP request : ")
     print("  ▀▀▀")
-    print(f"  {req.method} {req.url}")
-    for i in dict(req.headers):
-        print("  "+i+"= "+req.headers[i])
+    print(f"  {method} {url}")
+    for i in dict(headers):
+        print("  "+i+"= "+headers[i])
     print("")
     try:
-        print("  "+urlencode(req_body))
+        print("  "+urlencode(data))
     except:
-        print("  "+req_body)
+        print("  "+data)
     print("  ▀▀▀")
 
 def is_valid_url(url: str) -> bool:
@@ -323,23 +315,31 @@ def main(argv=None):
 
     parser.add_argument("-h", "--host", dest="host", required=False, default=None,
                         help="Target host URL (e.g. http://example.com)")
-    parser.add_argument("-m", "--mode", dest="mode", required=True,
+    parser.add_argument("-m", "--mode", dest="mode", required=False, default=None,
                         help="This is the authentification mode")
     parser.add_argument("-d", "--data", dest="data", required=True,
                         help="This shows how the data is set")
     parser.add_argument("-u", "--user-file", dest="user_file", required=True, 
                         help="Path to username file (one username per line)")
-    parser.add_argument("-p", "--pass-file", dest="pass_file", required=True,
+    parser.add_argument("-p", "--pass-file", dest="pass_file", required=False,default="password",
                         help="Path to password file (one password per line)")
     parser.add_argument("-f", "--failed-string", dest="failed_string", required=False, default=None,
                         help="Failed string to filter success request")
+    parser.add_argument("-user-enum", "--user-enum", action='store_true', default=False,
+                        help="Failed string to filter success request")
+                        
     args = parser.parse_args(argv)
+
+    user_enum = args.user_enum
 
     # 1. check the mode
     mode = args.mode
-    if mode not in mode_list:
-        parser.error(f"The mode must be in the following list : "+str(mode))
     data = args.data
+    if mode not in mode_list:
+        if os.path.isfile(data):
+            mode = "requestfile"
+        else:
+            parser.error(f"The mode must be in the following list : "+str(mode))
     
     # 2. if requestfile, process the file
     if mode == "requestfile":
@@ -374,13 +374,11 @@ def main(argv=None):
 
     file_username = load_lines(args.user_file)
     numberusers = len(file_username)
+    file_username.append("test@test.com")
     file_password = load_lines(args.pass_file)
-    file_password.append("testtest")
     numberpassword = len(file_password)
     totalnumber = numberusers*numberpassword
-    progressvalue = int(totalnumber/100)
-    if progressvalue==0:
-        progressvalue = 1
+    progressvalue = 10
 
     counter = 0
     for user in file_username:
@@ -388,11 +386,14 @@ def main(argv=None):
             counter += 1
             if(counter % progressvalue)==0:
                 print(f"\r  Progress {counter}/{totalnumber}", end="")
-            funcs[mode_index](host,user,password,bad_request_data,data,failed_string)
+            funcs[mode_index](host,user,password,bad_request_data,data,failed_string,user_enum)
     print()
     global found 
     if not found:
-        print(f"\r  FAILED")
+        if user_enum:
+            print(f"\r  NO USER FOUND. THE PAGE MAY NOT BE VULNERABLE TO USER ENUMERATION.")
+        else:
+            print(f"\r  NO ACCOUNT FOUND")
 
     return 0
 

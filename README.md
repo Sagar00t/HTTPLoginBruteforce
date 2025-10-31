@@ -15,6 +15,12 @@ An HTTP Login Bruteforcer written in Python
 
 ## 🚀 Usage
 
+User enumeration:
+
+```bash
+python3 minotaur.py -user-enum -u /usr/share/wordlists/seclists/Usernames/xato-net-10-million-usernames.txt -d req.txt
+```
+
 Bruteforce via HTTP GET method:
 
 ```bash
@@ -34,9 +40,10 @@ python3 minotaur.py -h http://api.example.org/v1/login -u username.txt -p passwo
 ```
 
 Bruteforce via a request template:
+
 <small><em>The format must be like the req.txt file inside this repository (Curl format).
 It can be taken inside Browser Dev tools by copying into curl format.</em></small>
 
 ```bash
-python3 minotaur.py -m requestfile -d req.txt -u username.txt -p password.txt
+python3 minotaur.py -d req.txt -u username.txt -p password.txt
 ```
